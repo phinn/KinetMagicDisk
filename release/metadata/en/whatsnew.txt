@@ -1,0 +1,6 @@
+Initial release on the Mac App Store.
+
+• Scan any folder — or your entire Home — with a fast concurrent engine
+• Explore disk usage as an interactive sunburst map
+• Move unneeded files straight to the Trash with one click
+• Fully sandboxed and private: no network access, ever
