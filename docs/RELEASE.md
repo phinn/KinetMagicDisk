@@ -2,7 +2,9 @@
 
 > 目标:拿到 ASC 账号后,照本文**从上到下一次填完**,不留口头清单。
 > Bundle ID: `com.kitnet.magicdisk` · 版本 1.0.0 (Build 1) · macOS 13+ · Universal (arm64 + x86_64)
-> Archive 产物: `/tmp/kmd_final2.xcarchive`(**注意:/tmp 重启会清空**,如已丢失按 §6 重出)
+> **ASC 要的是 .pkg 不是 archive**:`release/dist/KinetMagicDisk-1.0.0.pkg` 已就绪
+> (Installer 签名 ✓ · 包内 Apple Distribution 重签 + embedded MAS profile ✓)。
+> archive(/tmp/kmd_final6.xcarchive)仅是中间产物,/tmp 清空后按 §6.1 重出。
 
 ---
 
@@ -147,49 +149,49 @@ no account, no sign-in required. Nothing to configure.
 
 ## 6. 构建上传(App Store Connect → TestFlight/版本页)
 
-### 6.1 重出 archive(如 /tmp 产物已丢失)
+### 6.1 重出 archive → pkg(如 /tmp 产物已丢失)
 
 ```bash
 cd ~/Documents/kinet/KinetMagicDisk
+xcodegen generate   # 若 pbxproj 过期(新加过资源文件必须重新 generate)
 xcodebuild -project KinetMagicDisk.xcodeproj -scheme KinetMagicDisk \
-  -configuration Release -archivePath /tmp/kmd_final2.xcarchive \
-  -destination 'generic/platform=macOS' archive
+  -configuration Release -archivePath /tmp/kmd_final6.xcarchive \
+  -destination 'generic/platform=macOS' -allowProvisioningUpdates archive
 # 验证:codesign OK / universal / 四语 lproj / 无调试残留
-APP=/tmp/kmd_final2.xcarchive/Products/Applications/KinetMagicDisk.app
+APP=/tmp/kmd_final6.xcarchive/Products/Applications/KinetMagicDisk.app
 codesign --verify --deep --strict "$APP" && lipo -info "$APP/Contents/MacOS/KinetMagicDisk"
+
+# archive → ASC pkg(自动 re-sign 为 Apple Distribution + 注入 MAS profile):
+xcodebuild -exportArchive -archivePath /tmp/kmd_final6.xcarchive \
+  -exportPath /tmp/kmd_export \
+  -exportOptionsPlist release/dist/ExportOptions-appstore.plist \
+  -allowProvisioningUpdates
+# 产物: /tmp/kmd_export/KinetMagicDisk.pkg
+# 注:archive 显示 "Apple Development" 签名是正常的,export 阶段统一重签。
 ```
 
 ### 6.2 上传(三选一)
 
-**A. Xcode(最省事):**
-Xcode → Window → Organizer → 选 archive → **Distribute App** → App Store Connect → Upload。首次会要求登录 Apple ID 并选 Team。
+**A. Transporter(最省事):**Mac App Store 装 Transporter → 拖入 `.pkg` → Deliver。
 
-**B. altool / notarytool(命令行):**
+**B. Xcode Organizer:**Window → Organizer → 选 archive → **Distribute App** →
+App Store Connect → Upload(内部与本目录 ExportOptions 等价)。首次要求登录并选 Team(M92UKS6NA2)。
+
+**C. altool(命令行,需 ASC API Key):**
 ```bash
-# 1) 存凭证(一次):
-xcrun notarytool store-credentials KMD_NOTARY --apple-id <你的AppleID> --team-id <TeamID>
-# 2) 导出 ipa/pkg 并上传:
-xcodebuild -exportArchive -archivePath /tmp/kmd_final2.xcarchive \
-  -exportPath /tmp/kmd_export -exportOptionsPlist <(见 6.3)
-# 3) 公证(仅 App Store 直发可省;但建议同时公证以便官网分发 dmg):
-xcrun notarytool submit /tmp/kmd_export/KinetMagicDisk.pkg --keychain-profile KMD_NOTARY --wait
-xcrun stapler staple /tmp/kmd_export/KinetMagicDisk.app
+xcrun altool --store-type onboarded \
+  --upload-package /tmp/kmd_export/KinetMagicDisk.pkg \
+  --api-key-id <KEYID> --api-issuer <ISSUER>
 ```
 
-> ⚠️ 已知问题:本机此前 `codesign --timestamp` 连不上 Apple 时间戳服务。若再遇:
-> 重试/换网络即可,纯网络问题,非签名配置错误。ASC 上传要求 Apple timestamp,公证人会卡这一步。
+> ⚠️ MAS 直发**不需要** notarytool 公证(那是 Developer ID 分发用的)。
+> 若走官网 dmg 分发才需要:`notarytool submit` + `stapler staple`。
+> 已知问题:本机此前 `codesign --timestamp` 连不上 Apple 时间戳服务,重试/换网络即可。
 
-### 6.3 exportOptions(如走命令行)
+### 6.3 exportOptions
 
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0"><dict>
-  <key>method</key><string>app-store</string>
-  <key>teamID</key><string>你的TeamID</string>
-  <key>destination</key><string>export</string>
-</dict></plist>
-```
+已落盘 `release/dist/ExportOptions-appstore.plist`(method=app-store-connect,
+teamID=M92UKS6NA2),直接用,无需手写。
 
 ### 6.4 ASC 版本页挂构建
 
@@ -202,11 +204,12 @@ xcrun stapler staple /tmp/kmd_export/KinetMagicDisk.app
 - [ ] GitHub 仓库已 push,Privacy URL 浏览器能打开四语锚点
 - [ ] App Information:Bundle ID 选对、SKU、Category=Utilities
 - [ ] Pricing:Tier 10 ($9.99),175 regions
+- [ ] 年龄分级问卷照 release/review-notes.md「Age rating questionnaire」11 问逐条勾 → 4+
 - [ ] 版本页四语 Name/Subtitle/Promo/Description/Keywords 全部粘贴完(数字与 §3.1 对得上)
 - [ ] 四语截图各 1 张已拖入对应本地化
 - [ ] App Privacy:None
-- [ ] App Review Notes 已粘贴 §5 模板
-- [ ] Build 已挂上,加密合规已答
+- [ ] App Review Notes 已粘贴 release/review-notes.md 英文段
+- [ ] Build 已挂上(上传 release/dist/KinetMagicDisk-1.0.0.pkg),加密合规已答
 - [ ] **提交审核 (Submit for Review)**
 
 ## 8. 常见审核退回点(预判)
