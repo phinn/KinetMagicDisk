@@ -157,6 +157,7 @@ struct ContentView: View {
             }
             .buttonStyle(.borderless)
             .disabled(vm.focus == nil)
+            .accessibilityLabel(Text(I18n.t("action.revealInFinder")))
             .help(I18n.t("action.revealInFinder"))
         }
         .padding(.horizontal, 12)

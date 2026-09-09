@@ -59,6 +59,7 @@ struct FileRow: View {
                     .foregroundStyle(.secondary)
             }
             .buttonStyle(.plain)
+            .accessibilityLabel(Text(I18n.t("action.moveToTrash")))
             .help(I18n.t("action.moveToTrash"))
             .opacity(hover ? 1 : 0.25)
         }

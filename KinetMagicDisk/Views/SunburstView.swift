@@ -22,7 +22,7 @@ struct SunburstGeometry {
     static func build(focus: FileSystemNode, depthRings: Int = 5) -> SunburstGeometry {
         var segments: [SunburstSegment] = []
         let total = max(focus.size, 1)
-        var angle = -90.0
+        let startAngle = -90.0
 
         // 第 0 环 = 焦点自身(整环)
         segments.append(SunburstSegment(id: focus.id, node: focus, kind: .folder, startAngle: -90, endAngle: 270, ring: 0))
@@ -54,7 +54,7 @@ struct SunburstGeometry {
                 }
             }
         }
-        layout(node: focus, ring: 1, startA: angle, sweepA: 360)
+        layout(node: focus, ring: 1, startA: startAngle, sweepA: 360)
 
         // 按环排序稳定渲染
         segments.sort { ($0.ring, $0.startAngle) < ($1.ring, $1.startAngle) }
