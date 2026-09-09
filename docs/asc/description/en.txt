@@ -1,0 +1,27 @@
+KinetMagicDisk
+
+See what fills your disk. KinetMagicDisk scans any folder — or your entire Home — and turns it into an interactive sunburst map, so you can spot the space hogs in seconds and clean them up with a single click.
+
+FAST, FOCUSED SCANNING
+• Concurrent scanning engine built for modern Macs — millions of items scanned smoothly
+• Live progress while scanning; results are fully interactive the moment they land
+• Click any arc to drill down, click the breadcrumb to climb back up
+
+SUNBURST VISUALIZATION
+• Every file and folder drawn as a ring segment, sized by real disk usage
+• Stable, familiar colors: each folder keeps its hue across rescans
+• Hover any arc to preview its name and size before you commit
+
+CLEAN UP IN ONE CLICK
+• Spot a folder you no longer need? Move it to the Trash right from the list
+• The tree updates instantly — no full rescan after deleting
+• Files always go to the Trash first, so cleanup stays reversible
+
+PRIVATE BY DESIGN
+• No network access. No analytics. No tracking. Ever.
+• All scanning happens locally, inside the macOS sandbox
+• Access only the folders you explicitly grant
+
+Made for macOS. Built with native SwiftUI for fluid performance on Apple Silicon and Intel.
+
+Whether you're reclaiming gigabytes before a big download or just curious where your space went, KinetMagicDisk makes it obvious.
