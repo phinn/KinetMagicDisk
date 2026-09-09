@@ -72,16 +72,33 @@
 沙盒 Release 包实测链路:启动(旧书签失效)→ 自动弹授权面板 → Cmd+Shift+G 选目录 →
 扫描完成 → 列表 111 行。**审核员按 review-notes 的 60 秒路径可完整复现。**
 
-## 8. Archive 状态
+## 8. Archive → pkg → ASC 上传(已打通)
 
-- 最新:`/tmp/kmd_final4.xcarchive`(含 xcprivacy,ARCHIVE SUCCEEDED)
+- archive:`/tmp/kmd_final6.xcarchive`(DEVELOPMENT_TEAM=M92UKS6NA2,Automatic signing)
+- **ASC 要的是 .pkg 不是 archive**:`release/dist/KinetMagicDisk-1.0.0.pkg` 已导出
+  - Installer 证书:3rd Party Mac Developer Installer ✓
+  - 包内 app:export 时自动 re-sign 为 Apple Distribution + 注入 embedded.provisionprofile ✓
+- 复现:`xcodebuild -exportArchive -archivePath … -exportOptionsPlist release/dist/ExportOptions-appstore.plist -exportPath /tmp/kmd_export -allowProvisioningUpdates`(详见 release/dist/README.md,含 altool/Transporter 上传命令)
 - codesign --verify --deep --strict ✓ · universal ✓ · AUTOSHOT 调试残留 0 ✓
-- 上传:Xcode Organizer → Distribute App → App Store Connect
-  (或 `xcrun altool --upload-app` / notarytool 凭证,见 docs/RELEASE.md)
 
-## 9. 待用户操作(本机无法代劳)
+## 9. 图标验收
+
+- 源:`Resources/Assets.xcassets/AppIcon.appiconset/` 10 帧(16→1024,显式 sRGB)
+- **包内验证**:Assets.car rendition 10 帧齐全(含 icon_512x512@2x = 1024px);
+  actool 生成的 AppIcon.icns 只含 ≤256 帧,是 macOS 26 SDK 的裁剪行为,
+  Dock/ASC 渲染走 Assets.car + CFBundleIconName,不受影响(实测 NSWorkspace 渲染正常)
+- 验收图:`release/screenshots/icon-1024.png`(从包内 car 渲染)+ `icon-acceptance.png`(7 档尺寸拼图)
+
+## 10. 出口合规与年龄分级
+
+- `ITSAppUsesNonExemptEncryption=false` 已在 Info.plist(进包验证 ✓)——
+  纯本地应用,只用系统标准加密(HTTPS 不适用,无自研加密),免 French DECLARATION 副本
+- 年龄分级问卷答案(4+):见 release/review-notes.md「Age rating questionnaire」表,
+  11 问逐条答案 + rationale,直接照抄 ASC
+
+## 11. 待用户操作(本机无法代劳)
 
 1. GitHub 建仓 + push + 开 Pages(privacy URL 生效后再填 ASC)
 2. ASC 创建 App(四语 name/subtitle/promo/description/keywords/whatsnew 逐框粘贴)
-3. 上传 `/tmp/kmd_final4.xcarchive`
-4. Notes 区贴 `release/review-notes.md` 英文段
+3. 上传 `release/dist/KinetMagicDisk-1.0.0.pkg`(Transporter 拖入或 altool,见 dist/README)
+4. Notes 区贴 `release/review-notes.md` 英文段;年龄分级照「Age rating questionnaire」表勾

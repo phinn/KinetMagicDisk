@@ -35,6 +35,26 @@ the Trash.
 **Demo account**: not applicable — the app is fully offline with no accounts,
 no server, no subscriptions.
 
+**Age rating questionnaire (all markets: 4+)**
+
+| Question | Answer |
+|---|---|
+| Cartoon or Fantasy Violence | None |
+| Realistic Violence | None |
+| Prolonged Graphic Sadistic Realistic Violence | None |
+| Profanity or Crude Humor | None |
+| Mature/Suggestive Themes | None |
+| Horror/Fear Themes | None |
+| Medical/Treatment Information | None |
+| Alcohol, Tobacco, or Drug Use | None |
+| Gambling (simulated or real) | None |
+| Unrestricted Web Access | No — the app has no web views and no network entitlements |
+| User-Generated Content | No — the app reads the local file system only; no sharing, no accounts, no communication between users |
+
+Rationale: KinetMagicDisk exclusively enumerates local files and renders them
+as a chart. There is no content category of any kind that could trigger a
+rating above 4+.
+
 If anything looks broken on your side, the fastest repro is: launch →
 "Scan Folder…" → pick any folder with a few thousand files (e.g. /Applications).
 
@@ -51,6 +71,11 @@ KinetMagicDisk 是磁盘空间可视化工具:扫描文件系统并绘制交互�
   目录授权,并用 app-scope 书签持久化,避免每次重复授权。
 - 删除仅调用系统 trashItem(进废纸篓,可恢复),绝不永久删除。
 - 无账号/无服务器/无订阅,无需演示账号。
+
+**年龄分级问卷(全部市场:4+)**:暴力/色情/赌博/恐怖/医疗/烟酒/脏话全部"无";
+无限网页访问 = 否(无 WebView、无网络 entitlement);用户生成内容 = 否
+(只读本地文件系统,无分享、无账号、无用户间通信)。
+结论:没有任何内容类别会把分级推到 4+ 以上。
 
 快速验证:启动 → "Scan Folder…" → 任选一个有几千个文件的文件夹
 (如 /Applications)→ 点击弧形区块下钻 → hover 列表行点垃圾桶图标删除。
