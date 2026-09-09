@@ -202,11 +202,13 @@ struct ContentView: View {
                             }
                             .buttonStyle(.bordered)
                         }
-                        // 沙盒预授权快捷入口(Desktop/Documents/Downloads)
+                        // 快捷入口:打开授权面板并定位到对应真实目录
                         HStack(spacing: 8) {
-                            ForEach(SourcePicker.preauthorizedRoots(), id: \.url) { root in
+                            ForEach(SourcePicker.quickRoots(), id: \.url) { root in
                                 Button {
-                                    vm.scan(url: root.url)
+                                    if let url = SourcePicker.pickDirectory(startAt: root.url) {
+                                        vm.scan(url: url)
+                                    }
                                 } label: {
                                     Label(I18n.t(root.labelKey), systemImage: "folder")
                                         .font(.callout)

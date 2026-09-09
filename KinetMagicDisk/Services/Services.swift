@@ -7,8 +7,10 @@ enum TrashService {
     static func move(node: FileSystemNode) -> Bool {
         do {
             try FileManager.default.trashItem(at: node.id, resultingItemURL: nil)
+            NSLog("KMD trash OK: %@", node.id.path)
             return true
         } catch {
+            NSLog("KMD trash FAIL: %@ error=%@", node.id.path, error.localizedDescription)
             NSSound.beep()
             return false
         }
@@ -26,18 +28,16 @@ enum SourcePicker {
         return NSHomeDirectory()
     }
 
-    /// 沙盒默认可读的三个用户目录(无需弹窗)
-    static func preauthorizedRoots() -> [(url: URL, labelKey: String)] {
-        let fm = FileManager.default
-        var roots: [(URL, String)] = []
-        for (key, label) in [(FileManager.SearchPathDirectory.desktopDirectory, "root.desktop"),
-                             (FileManager.SearchPathDirectory.documentDirectory, "root.documents"),
-                             (FileManager.SearchPathDirectory.downloadsDirectory, "root.downloads")] {
-            if let url = fm.urls(for: key, in: .userDomainMask).first {
-                roots.append((url, label))
-            }
-        }
-        return roots
+    /// 快捷入口:真实用户目录路径(展示 + 面板初始目录)。
+    /// 沙盒下 urls(for:) 返回容器假目录(扫出来是空的),必须用 getpwuid 的真实 Home 拼路径。
+    /// 实际读取仍需 NSOpenPanel 授权,此处仅提供默认导航位置。
+    static func quickRoots() -> [(url: URL, labelKey: String)] {
+        let home = realHomePath()
+        return [
+            (URL(fileURLWithPath: home + "/Desktop"), "root.desktop"),
+            (URL(fileURLWithPath: home + "/Documents"), "root.documents"),
+            (URL(fileURLWithPath: home + "/Downloads"), "root.downloads"),
+        ]
     }
 
     /// 持久化的用户授权目录书签
@@ -69,15 +69,15 @@ enum SourcePicker {
 
     /// 打开目录选择面板(用户授权后获得该子树读权限)。NSOpenPanel 必须主线程配置+运行。
     @MainActor
-    static func pickDirectory() -> URL? {
+    static func pickDirectory(startAt: URL? = nil) -> URL? {
         let panel = NSOpenPanel()
         panel.canChooseDirectories = true
         panel.canChooseFiles = false
         panel.allowsMultipleSelection = false
         panel.message = I18n.t("picker.message")
         panel.prompt = I18n.t("picker.choose")
-        // 默认定位到真实 Home(展示用)
-        panel.directoryURL = URL(fileURLWithPath: realHomePath())
+        // 初始目录:显式指定 > 真实 Home(展示用)
+        panel.directoryURL = startAt ?? URL(fileURLWithPath: realHomePath())
         let resp = panel.runModal()
         guard resp == .OK, let url = panel.url else { return nil }
         saveRoot(url)
