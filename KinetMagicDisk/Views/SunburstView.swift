@@ -141,8 +141,10 @@ struct SunburstView: View {
                     hoverSegment = nil
                 }
             }
-            .onTapGesture {
-                if let seg = hoverSegment, seg.ring > 0 {
+            .onTapGesture { location in
+                // 用点击坐标直接命中,不依赖 hover 状态(触控板 tap / 快速点击无 hover 链也可靠)
+                let seg = hitTest(point: location, center: center, outer: outer, geometry: geometry)
+                if let seg, seg.ring > 0 {
                     onPick(seg.node)
                 }
             }
