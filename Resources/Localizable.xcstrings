@@ -1,0 +1,231 @@
+{
+  "sourceLanguage" : "en",
+  "version" : "1.0",
+  "strings" : {
+    "idle.big" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Visualize Your Disk" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "ディスクを可視化" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "可视化你的磁盘" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "視覺化你的磁碟" } }
+      }
+    },
+    "idle.sub" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Scan a folder to see what's taking up space." } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "フォルダをスキャンして、容量の内訳を確認しましょう。" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "扫描一个文件夹,看看空间都被什么占了。" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "掃描一個資料夾,看看空間都被什麼佔了。" } }
+      }
+    },
+    "idle.scanHome" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Scan Home" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "ホームをスキャン" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "扫描个人目录" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "掃描個人目錄" } }
+      }
+    },
+    "idle.rescan" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Rescan" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "再スキャン" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "重新扫描" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "重新掃描" } }
+      }
+    },
+    "root.desktop" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Desktop" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "デスクトップ" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "桌面" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "桌面" } }
+      }
+    },
+    "root.documents" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Documents" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "書類" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "文稿" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "文件" } }
+      }
+    },
+    "root.downloads" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Downloads" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "ダウンロード" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "下载" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "下載項目" } }
+      }
+    },
+    "idle.pickFolder" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Choose Folder…" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "フォルダを選択…" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "选择文件夹…" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "選擇資料夾…" } }
+      }
+    },
+    "idle.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "No Disk Scanned" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "ディスク未スキャン" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "尚未扫描" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "尚未掃描" } }
+      }
+    },
+    "idle.desc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Scan a folder to visualize." } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "フォルダをスキャンしてください。" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "扫描一个文件夹开始可视化。" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "掃描一個資料夾開始視覺化。" } }
+      }
+    },
+    "sunburst.items" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%@ items" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "%@ 項目" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "%@ 个项目" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "%@ 個項目" } }
+      }
+    },
+    "list.items" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%@ items" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "%@ 項目" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "%@ 个项目" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "%@ 個項目" } }
+      }
+    },
+    "list.empty.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Empty Folder" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "空のフォルダ" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "空文件夹" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "空資料夾" } }
+      }
+    },
+    "list.empty.desc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Nothing inside." } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "中身がありません。" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "里面没有内容。" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "裡面沒有內容。" } }
+      }
+    },
+    "action.revealInFinder" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Reveal in Finder" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "Finder で表示" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "在 Finder 中显示" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "在 Finder 中顯示" } }
+      }
+    },
+    "action.moveToTrash" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Move to Trash" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "ゴミ箱に移動" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "移到废纸篓" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "移到垃圾桶" } }
+      }
+    },
+    "action.focus" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Focus" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "フォーカス" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "聚焦" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "聚焦" } }
+      }
+    },
+    "action.up" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Up" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "上へ" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "上一级" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "上一層" } }
+      }
+    },
+    "action.top" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Back to Root" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "ルートへ戻る" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "回到根目录" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "回到根目錄" } }
+      }
+    },
+    "status.scanning" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Scanning… %@" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "スキャン中… %@" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "扫描中… %@" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "掃描中… %@" } }
+      }
+    },
+    "status.permissionErrors" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Some items couldn't be read (sandbox permissions)" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "一部の項目を読み取れませんでした(サンドボックス権限)" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "部分条目无法读取(沙盒权限)" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "部分項目無法讀取(沙盒權限)" } }
+      }
+    },
+    "picker.message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Choose a folder to visualize." } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "可視化するフォルダを選択してください。" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "选择要可视化的文件夹。" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "選擇要視覺化的資料夾。" } }
+      }
+    },
+    "picker.choose" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Choose" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "選択" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "选择" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "選擇" } }
+      }
+    },
+    "menu.scanHome" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Scan Home" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "ホームをスキャン" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "扫描个人目录" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "掃描個人目錄" } }
+      }
+    },
+    "menu.pickFolder" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Choose Folder…" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "フォルダを選択…" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "选择文件夹…" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "選擇資料夾…" } }
+      }
+    }
+  }
+}
