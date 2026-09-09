@@ -109,6 +109,8 @@ struct ContentView: View {
             if let focus = vm.focus {
                 FileListView(focus: focus) { node in
                     vm.drillDown(to: node)
+                } onTrash: { node in
+                    vm.removeNode(node)
                 }
             } else {
                 VStack(spacing: 8) {

@@ -45,6 +45,7 @@ final class ScanViewModel: ObservableObject {
 
     func drillDown(to node: FileSystemNode) {
         guard node !== focus else { return }
+        NSLog("KMD drillDown name=%@ isDir=%d stack=%d", node.name, node.isDirectory ? 1 : 0, focusStack.count)
         if node.isDirectory {
             focusStack.append(node)
         } else {
@@ -61,6 +62,23 @@ final class ScanViewModel: ObservableObject {
     func jumpToRoot() {
         guard let root else { return }
         focusStack = [root]
+    }
+
+    /// 增量摘除已删除节点:从父 children 移除,沿祖先链回滚 size/itemCount(免全量重扫)
+    func removeNode(_ node: FileSystemNode) {
+        guard TrashService.move(node: node) else { return }
+        var cur = node
+        while let p = cur.parent {
+            p.children.removeAll { $0 === cur }
+            p.size -= cur.size
+            p.itemCount = max(0, p.itemCount - max(cur.itemCount, 1))
+            cur = p
+        }
+        // 焦点在被删节点上则退回父级;root 引用刷新触发视图重算
+        focusStack.removeAll { $0 === node }
+        if root === node { root = nil }
+        root = root // 触发 @Published
+        objectWillChange.send()
     }
 
     /// 祖先链面包屑

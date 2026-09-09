@@ -18,6 +18,7 @@ struct FileRow: View {
     let node: FileSystemNode
     /// 祖先链中的 size 占比(0-1),用于画比例条
     let fraction: Double
+    var onTrash: (FileSystemNode) -> Void = { _ in }
 
     var body: some View {
         HStack(spacing: 8) {
@@ -49,16 +50,30 @@ struct FileRow: View {
                     .font(.caption2)
                     .foregroundStyle(.tertiary)
             }
+            // 悬停显形的"移到废纸篓"按钮(可发现性 + 辅助功能可达)
+            Button {
+                onTrash(node)
+            } label: {
+                Image(systemName: "trash")
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundStyle(.secondary)
+            }
+            .buttonStyle(.plain)
+            .help(I18n.t("action.moveToTrash"))
+            .opacity(hover ? 1 : 0.25)
         }
         .padding(.vertical, 3)
         .contentShape(Rectangle())
+        .onHover { hover = $0 }
     }
+    @State private var hover = false
 }
 
 /// 右侧:当前焦点子项列表(按大小降序)
 struct FileListView: View {
     let focus: FileSystemNode
     var onPick: (FileSystemNode) -> Void
+    var onTrash: (FileSystemNode) -> Void = { _ in }
 
     private var sorted: [FileSystemNode] {
         focus.children.sorted { $0.size > $1.size }
@@ -67,7 +82,7 @@ struct FileListView: View {
     var body: some View {
         List {
             ForEach(sorted, id: \.id) { child in
-                FileRow(node: child, fraction: focus.size > 0 ? Double(child.size) / Double(focus.size) : 0)
+                FileRow(node: child, fraction: focus.size > 0 ? Double(child.size) / Double(focus.size) : 0, onTrash: onTrash)
                     .listRowInsets(EdgeInsets(top: 2, leading: 8, bottom: 2, trailing: 8))
                     .contentShape(Rectangle())
                     .onTapGesture { onPick(child) }
@@ -76,7 +91,7 @@ struct FileListView: View {
                             NSWorkspace.shared.activateFileViewerSelecting([child.id])
                         }
                         Button(I18n.t("action.moveToTrash"), role: .destructive) {
-                            TrashService.move(node: child)
+                            onTrash(child)
                         }
                         Divider()
                         Button(I18n.t("action.focus")) { onPick(child) }
