@@ -41,6 +41,16 @@ final class ProgressCounter: @unchecked Sendable {
         return false
     }
 
+    /// [KMD-DBG] 独立采样计数器:约每 512 次调用返回一次 true(与 add 的进度上报节流互不干扰)
+    func sampleTick() -> Bool {
+        lock.lock(); defer { lock.unlock() }
+        sampleTickCounter += 1
+        if sampleTickCounter >= 512 { sampleTickCounter = 0; return true }
+        return false
+    }
+
+    private var sampleTickCounter = 0
+
     func reset() {
         lock.lock(); defer { lock.unlock() }
         count = 0
@@ -55,6 +65,47 @@ private final class DirEnumBox {
     var done = false
 }
 
+/// [KMD-FIX5] 全局枚举并发闸(信号量)。
+/// TCC/云盘慢目录的 open 会占死 GCD 线程直到内核超时(分钟级)。若不设闸,32 个 TaskGroup
+/// 窗口全落在慢目录上时,GCD 池被占满,watchdog block 也拿不到线程 → 竞速失效、扫描假死。
+/// 闸宽 8:最坏只占 8 个线程,watchdog 队列永远有线程可用;非慢目录吞吐不受影响。
+/// [KMD-FIX6] wait/signal 均在 enumQueue 的 GCD block 内(GCD 线程可扩容,等待不占
+/// Swift cooperative 池),watchdog 独立队列零竞争。
+private let enumGate = DispatchSemaphore(value: 8)
+
+/// [KMD-FIX5] 已确认僵死的目录前缀缓存(学习式跳过)。
+/// 同一容器/卷内一旦出现 open 挂死,同前缀目录大概率同样挂死,直接短路,不再浪费竞速周期。
+private final class StuckPrefixCache {
+    static let shared = StuckPrefixCache()
+    private let lock = NSLock()
+    private var prefixes: Set<String> = []
+    /// 判定粒度:容器目录(/Library/Containers/<id>)或卷根前 3 级
+    func key(for url: URL) -> String? {
+        let p = url.path
+        if let r = p.range(of: "/Library/Containers/") {
+            let rest = p[r.upperBound...]
+            if let slash = rest.firstIndex(of: "/") { return "/Library/Containers/" + rest[..<slash] }
+            return nil
+        }
+        if let r = p.range(of: "/Library/Group Containers/") {
+            let rest = p[r.upperBound...]
+            if let slash = rest.firstIndex(of: "/") { return "/Library/Group Containers/" + rest[..<slash] }
+            return nil
+        }
+        return nil
+    }
+    func isStuck(_ url: URL) -> Bool {
+        guard let k = key(for: url) else { return false }
+        lock.lock(); defer { lock.unlock() }
+        return prefixes.contains(k)
+    }
+    func markStuck(_ url: URL) {
+        guard let k = key(for: url) else { return }
+        lock.lock(); defer { lock.unlock() }
+        prefixes.insert(k)
+    }
+}
+
 /// [KMD-FIX3] 竞速完成旗标(先到者 resume,后到者丢弃)
 private final class RaceState {
     let lock = NSLock()
@@ -63,6 +114,10 @@ private final class RaceState {
 
 /// [KMD-FIX3] 枚举专用并发队列
 private let enumQueue = DispatchQueue(label: "com.kinnet.magicdisk.enum", qos: .userInitiated, attributes: .concurrent)
+/// [KMD-FIX4] 看门狗专用串行队列:与 race block 隔离。
+/// 若 watchdog 与积压的枚举 block 同队列,海量慢目录会把 watchdog 压在队尾,竞速永远输 → 扫描假死。
+/// 串行 timer 队列上只有 watchdog block,到期即执行,绝不排队。
+private let watchdogQueue = DispatchQueue(label: "com.kinnet.magicdisk.watchdog", qos: .userInitiated)
 
 /// 并发磁盘扫描引擎。
 /// 设计:
@@ -128,7 +183,6 @@ actor DiskScanner {
             return node
         }
 
-        let fm = FileManager.default
         let keys: Set<URLResourceKey> = [
             .isDirectoryKey, .isSymbolicLinkKey, .isPackageKey,
             .fileSizeKey, .totalFileAllocatedSizeKey
@@ -139,6 +193,13 @@ actor DiskScanner {
         let dirURL = scanURL
         // [KMD-FIX3] 两个 race participant 都跑在 GCD(不受 cooperative pool 限制,防 sleep 饥饿):
         // 卡死的 open 线程困在 GCD 池(GCD 可扩容),Swift 并发池只挂轻量 continuation。
+        // [KMD-FIX5] 学习式跳过:同容器/同卷曾出现 open 挂死,本目录直接按"存在但不可深入"处理
+        if StuckPrefixCache.shared.isStuck(scanURL) {
+            node.errorCount += 1
+            return node
+        }
+        // [KMD-FIX6] 信号量限流移入 GCD block 内:cooperative 池只挂 continuation 永不阻塞;
+        // 名额等待发生在 GCD 线程(可扩容),watchdog 独立队列不受影响 → 无死锁、无协作池饿死。
         let raced: [URL]? = await withCheckedContinuation { outer in
             let box = DirEnumBox()
             let state = RaceState()
@@ -151,14 +212,20 @@ actor DiskScanner {
                 box.lock.lock(); box.items = urls; box.lock.unlock()
                 outer.resume(returning: done ? urls : nil)
             }
-            enumQueue.asyncAfter(deadline: .now() + 5) { finish(false, []) }
+            watchdogQueue.asyncAfter(deadline: .now() + 5) { finish(false, []) }
             enumQueue.async {
+                // [KMD-FIX5] 慢目录限宽:最坏 8 个 open 挂死,余下名额给 watchdog 与正常枚举
+                enumGate.wait()
+                defer { enumGate.signal() }
                 let urls = (try? FileManager.default.contentsOfDirectory(
                     at: dirURL, includingPropertiesForKeys: Array(keys), options: [])) ?? []
                 finish(true, urls)
             }
         }
         guard let items = raced, !items.isEmpty || FileManager.default.isReadableFile(atPath: dirURL.path) else {
+            // 看门狗超时:标记该目录所属容器/卷为僵死区,后续同前缀目录全部短路
+            StuckPrefixCache.shared.markStuck(dirURL)
+            kmdDbg("enum TIMEOUT \(dirURL.path)")
             node.errorCount += 1
             return node
         }
@@ -201,7 +268,7 @@ actor DiskScanner {
         node.size += files.reduce(0) { $0 + $1.size }
         node.itemCount += files.count
 
-        counter.add(files.count)
+        _ = counter.add(files.count)
 
         // 子目录分批并发(窗口 32)
         var index = 0
@@ -240,7 +307,10 @@ actor DiskScanner {
         if counter.add(0), !Task.isCancelled {
             onProgress(ScanProgress(scannedItems: counter.value, currentPath: url.path))
         }
-        kmdDbg("scanTree done url=\(url.path) items=\(node.itemCount)")
+        // [KMD-DBG] 采样落盘,避免热路径 IO 拖慢扫描
+        if counter.sampleTick() {
+            kmdDbg("scanTree done url=\(url.path) items=\(node.itemCount)")
+        }
         return node
     }
 
