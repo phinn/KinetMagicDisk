@@ -1,5 +1,20 @@
 import Foundation
 
+/// [KMD-DBG] 直接落盘日志(沙盒下 /tmp 不可写时静默跳过)
+func kmdDbg(_ msg: String) {
+    #if DEBUG
+    let line = "\(Date()) \(msg)\n"
+    let path = "/tmp/kmd_dbg.log"
+    if let fh = FileHandle(forWritingAtPath: path) {
+        fh.seekToEndOfFile()
+        fh.write(line.data(using: .utf8)!)
+        fh.closeFile()
+    } else {
+        try? line.write(toFile: path, atomically: true, encoding: .utf8)
+    }
+    #endif
+}
+
 /// 扫描进度快照(跨并发边界传递)
 struct ScanProgress: Sendable {
     let scannedItems: Int
@@ -33,6 +48,22 @@ final class ProgressCounter: @unchecked Sendable {
     }
 }
 
+/// [KMD-FIX3] 枚举竞速结果盒
+private final class DirEnumBox {
+    let lock = NSLock()
+    var items: [URL] = []
+    var done = false
+}
+
+/// [KMD-FIX3] 竞速完成旗标(先到者 resume,后到者丢弃)
+private final class RaceState {
+    let lock = NSLock()
+    var finished = false
+}
+
+/// [KMD-FIX3] 枚举专用并发队列
+private let enumQueue = DispatchQueue(label: "com.kinnet.magicdisk.enum", qos: .userInitiated, attributes: .concurrent)
+
 /// 并发磁盘扫描引擎。
 /// 设计:
 /// - actor 隔离对外入口,内部递归为 nonisolated 纯函数(TaskGroup 并发,无共享可变状态)
@@ -48,6 +79,7 @@ actor DiskScanner {
     func scan(root: URL, onProgress: @escaping @Sendable (ScanProgress) -> Void) async -> FileSystemNode {
         counter.reset()
         let isRootDir = (try? root.resourceValues(forKeys: [.isDirectoryKey]))?.isDirectory ?? false
+        kmdDbg("engine scan entry url=\(root.path)")
         if isRootDir {
             return await Self.scanTree(
                 url: root,
@@ -90,15 +122,43 @@ actor DiskScanner {
         let node = FileSystemNode(url: scanURL, name: scanName, isDirectory: true, depth: depth)
         guard depth < maxDepth, !Task.isCancelled else { return node }
 
+        // [KMD-FIX] 云盘(File Provider)与废纸篓目录 open() 会阻塞在网络 IO(Errno 60,分钟级超时):
+        // OneDrive/.Trash 实测让 10 个并发线程全卡死。按"存在但不可深入"处理:不枚举、不计入 errorCount。
+        if scanName == ".Trash" || scanURL.path.contains("/Library/CloudStorage/") {
+            return node
+        }
+
         let fm = FileManager.default
         let keys: Set<URLResourceKey> = [
             .isDirectoryKey, .isSymbolicLinkKey, .isPackageKey,
             .fileSizeKey, .totalFileAllocatedSizeKey
         ]
-        let items: [URL]
-        do {
-            items = try fm.contentsOfDirectory(at: scanURL, includingPropertiesForKeys: Array(keys), options: [])
-        } catch {
+        // [KMD-FIX2] 慢目录(容器 TCC 检查/云盘占位/网盘 .Trash)的 open 可能阻塞 60s~数分钟(Errno 60)。
+        // 内核阻塞不可中断 → 竞速:枚举任务 vs 5s 计时任务,先到先得;
+        // 输掉的枚举线程自然耗尽后回收(数量受 TaskGroup 窗口限制,不会雪崩)。
+        let dirURL = scanURL
+        // [KMD-FIX3] 两个 race participant 都跑在 GCD(不受 cooperative pool 限制,防 sleep 饥饿):
+        // 卡死的 open 线程困在 GCD 池(GCD 可扩容),Swift 并发池只挂轻量 continuation。
+        let raced: [URL]? = await withCheckedContinuation { outer in
+            let box = DirEnumBox()
+            let state = RaceState()
+            let finish: (Bool, [URL]) -> Void = { done, urls in
+                state.lock.lock()
+                let already = state.finished
+                state.finished = true
+                state.lock.unlock()
+                guard !already else { return }
+                box.lock.lock(); box.items = urls; box.lock.unlock()
+                outer.resume(returning: done ? urls : nil)
+            }
+            enumQueue.asyncAfter(deadline: .now() + 5) { finish(false, []) }
+            enumQueue.async {
+                let urls = (try? FileManager.default.contentsOfDirectory(
+                    at: dirURL, includingPropertiesForKeys: Array(keys), options: [])) ?? []
+                finish(true, urls)
+            }
+        }
+        guard let items = raced, !items.isEmpty || FileManager.default.isReadableFile(atPath: dirURL.path) else {
             node.errorCount += 1
             return node
         }
@@ -180,6 +240,7 @@ actor DiskScanner {
         if counter.add(0), !Task.isCancelled {
             onProgress(ScanProgress(scannedItems: counter.value, currentPath: url.path))
         }
+        kmdDbg("scanTree done url=\(url.path) items=\(node.itemCount)")
         return node
     }
 
