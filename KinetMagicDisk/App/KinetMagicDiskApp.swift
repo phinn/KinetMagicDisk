@@ -6,7 +6,7 @@ struct KinetMagicDiskApp: App {
         WindowGroup {
             ContentView()
         }
-        .windowStyle(.automatic)
+        .windowStyle(.automatic).windowResizability(.contentSize)
         .commands {
             CommandGroup(after: .newItem) {
                 Button(I18n.t("menu.scanHome")) {

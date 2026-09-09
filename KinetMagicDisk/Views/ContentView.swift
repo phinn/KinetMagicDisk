@@ -18,7 +18,7 @@ struct ContentView: View {
             Divider()
             statusBar
         }
-        .frame(minWidth: 980, minHeight: 620)
+        .frame(minWidth: 1280, idealWidth: 1280, maxWidth: .infinity, minHeight: 768, idealHeight: 768, maxHeight: .infinity)
         .background(taskbarBackground)
         .overlay { idleOverlay }
         .navigationTitle("KinetMagicDisk")
