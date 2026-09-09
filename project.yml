@@ -23,6 +23,9 @@ targets:
       - path: KinetMagicDisk
       - path: Resources
         buildPhase: resources
+        # PrivacyInfo.xcprivacy 需落在 .app 根目录(bundle root),XcodeGen 对
+        # Resources/ 下文件默认进 Contents/Resources/;ASC 校验只认 bundle root 或
+        # Contents/Resources/ 均可(macOS 惯例 Contents/Resources/)。
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.kitnet.magicdisk
