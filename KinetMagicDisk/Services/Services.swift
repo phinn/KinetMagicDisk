@@ -70,6 +70,14 @@ enum SourcePicker {
     /// 打开目录选择面板(用户授权后获得该子树读权限)。NSOpenPanel 必须主线程配置+运行。
     @MainActor
     static func pickDirectory(startAt: URL? = nil) -> URL? {
+        // [KMD-AUTOSHOT] 仅 Debug 包生效:KMD_AUTOSHOT=1 时跳过面板直接用默认目录(自动化截图用;Release 上架包物理隔离)
+        #if DEBUG
+        if ProcessInfo.processInfo.environment["KMD_AUTOSHOT"] == "1" {
+            let url = startAt ?? URL(fileURLWithPath: realHomePath())
+            saveRoot(url)
+            return url
+        }
+        #endif
         let panel = NSOpenPanel()
         panel.canChooseDirectories = true
         panel.canChooseFiles = false
