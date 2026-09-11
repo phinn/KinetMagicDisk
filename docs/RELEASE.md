@@ -17,11 +17,16 @@ gh repo create KinetMagicDisk --public --source=. --push
 ```
 
 开 Pages:**仓库 → Settings → Pages → Source: `main` 分支, `/ (root)` 目录 → Save**
+(网站源在仓库根目录 `website/`,所以根路径就能访问;若想把 Pages 指向 `website/`,
+用 GitHub Actions 部署或 `website/` 作为独立仓库。)
 
-- Privacy Policy URL(**ASC 表单里填这个**):
-  `https://phinn.github.io/KinetMagicDisk/`(实际是 `…/docs/privacy/index.html`,根路径 404 时填完整路径)
-- 页面为单文件 `docs/privacy/index.html`,无外部依赖,含 en/ja/zh-Hans/zh-Hant 四语锚点。
-- Push 后 1~2 分钟生效,浏览器先自测一遍四语锚点都能打开。
+- **Privacy Policy URL(ASC 表单里填这个)**:
+  `https://phinn.github.io/KinetMagicDisk/privacy.html`
+- **Support / Marketing URL(可选)**:
+  `https://phinn.github.io/KinetMagicDisk/`
+- 页面源 `website/index.html` + `website/privacy.html`,与 KinetMorning 风格一致:
+  暗色橙金渐变、四语 I18N(localStorage + 按钮即时切)、完全静态、无外部依赖
+- Push 后 1~2 分钟生效,浏览器先自测一遍四语(右下角按钮:简体/繁體/EN/日本語)
 
 > 若不想用 Pages,备选:Privacy URL 也可指向任意能公网访问的静态托管。ASC 表单该字段必填,不能留空。
 
@@ -111,7 +116,7 @@ gh repo create KinetMagicDisk --public --source=. --push
 > - 无 `NSUserTrackingUsageDescription`,无 ATT 框架
 > - 二进制无网络 API 调用,entitlements 无 `network.client`
 > - 所有数据仅存沙盒容器(书签+偏好),不上传
-> Privacy 页 (`docs/privacy/index.html`) 与此口径完全一致,审核可交叉验证。
+> Privacy 页 (`website/privacy.html`) 与此口径完全一致,审核可交叉验证。
 
 ---
 

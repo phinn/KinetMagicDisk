@@ -29,14 +29,18 @@
 
 ## 3. 隐私政策 HTML(GitHub Pages 直接部署)
 
-- `release/privacy/index.html` = `docs/privacy/index.html`(同源)
-- 四语单页锚点:English / 日本語 / 简体中文 / 繁體中文
+- `website/privacy.html` — 与 KinetMorning 同款结构,4 段 `<section data-lang="…">` + langbar 切换
+- `website/index.html` — 同款 4 语 I18N,作为 Marketing / Support URL 入口
+- 四语:English / 日本語 / 简体中文 / 繁體中文
 - 上线步骤(用户操作):
   ```bash
   gh repo create KinetMagicDisk --public --source=. --push   # 或网页建仓后 git push
-  # GitHub → Settings → Pages → Deploy from branch → main /docs
+  # GitHub → Settings → Pages → Source: main / (root) → Save
   ```
-- 生效 URL:`https://phinn.github.io/KinetMagicDisk/` → 填入 ASC Privacy Policy URL
+- 生效 URL:
+  - Privacy Policy URL: `https://phinn.github.io/KinetMagicDisk/privacy.html`
+  - Marketing / Support URL(可选): `https://phinn.github.io/KinetMagicDisk/`
+- 验收图:`website/screenshots/{01_index,02_priv}_{en,zh-Hans,zh-Hant,ja}.png`(8 张,均为 Chrome headless 实拍,md5 全异)
 
 ## 4. 截图(四语 ×1,2560×1600 sRGB)
 
