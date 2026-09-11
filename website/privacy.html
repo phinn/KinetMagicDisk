@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KinetMagicDisk Privacy Policy · 隐私政策 · プライバシーポリシー</title>
+<style>
+  :root { color-scheme: dark; }
+  body { margin: 0; background: #0D0F14; color: #EEF1F5; font: 16px/1.8 -apple-system, "PingFang SC", "Hiragino Sans", "Yu Gothic", sans-serif; }
+  .wrap { max-width: 680px; margin: 0 auto; padding: 40px 24px 80px; }
+  .topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; flex-wrap: wrap; gap: 12px; }
+  .brand { display: flex; align-items: center; gap: 10px; color: #939CA9; font-size: 14px; font-weight: 600; }
+  .brand img { width: 26px; height: 26px; border-radius: 6px; }
+  .brand a:hover { color: #FF9F45; }
+  h1 { color: #FF9F45; font-size: 28px; margin: 12px 0 6px; } h2 { color: #FF9F45; font-size: 20px; margin-top: 2em; }
+  .sub { color: #939CA9; font-size: 14px; }
+  strong { color: #FFD75F; } a { color: #FF9F45; }
+  ul { padding-left: 1.4em; } li { margin: .4em 0; }
+  .langbar { display: flex; gap: 8px; flex-wrap: wrap; }
+  .langbar button {
+    background: #1D2330; color: #939CA9; border: 1px solid #2A3242; border-radius: 8px;
+    padding: 6px 14px; font-size: 14px; cursor: pointer; font-family: inherit;
+  }
+  .langbar button.on { background: #FF9F45; color: #0D0F14; border-color: #FF9F45; font-weight: 600; }
+  section[hidden] { display: none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <div class="brand"><img src="icon.png" alt=""><a href="index.html">KinetMagicDisk</a></div>
+    <div class="langbar" role="tablist">
+      <button data-lang="zh-Hans">简体中文</button>
+      <button data-lang="zh-Hant">繁體中文</button>
+      <button data-lang="en">English</button>
+      <button data-lang="ja">日本語</button>
+    </div>
+  </div>
+
+  <!-- ===================== 简体中文 ===================== -->
+  <section lang="zh-Hans" data-lang="zh-Hans">
+  <h1>KinetMagicDisk 隐私政策</h1>
+  <p class="sub">最后更新:2026-09-11 · 适用于 macOS 应用「KinetMagicDisk」</p>
+
+  <h2>一句话版本</h2>
+  <p><strong>我们不收集你的任何数据。</strong>没有账号、没有广告、没有统计分析、没有第三方 SDK。应用不会把你的文件发送到任何服务器——事实上它根本没有网络能力。</p>
+
+  <h2>应用能做什么</h2>
+  <ul>
+    <li><strong>扫描你选择的文件夹:</strong>枚举目录结构并按体积聚合,在屏幕上画成旭日图,列出大文件。</li>
+    <li><strong>把文件移入废纸篓:</strong>通过系统标准 API <code>FileManager.trashItem</code>,文件进废纸篓可恢复,绝不永久删除。</li>
+    <li><strong>记住你的选择:</strong>使用 <strong>app-scoped 安全作用域书签</strong>,以便下次「Scan Home」无需再次授权。书签只对本应用有效,无法被其它进程读取。</li>
+  </ul>
+
+  <h2>数据存在哪里</h2>
+  <p><strong>全部在你自己的 Mac 上。</strong>扫描结果只是渲染到窗口的画面,不写盘、不入数据库、不上传云端。书签以二进制形式存储于 macOS 标准 <code>UserDefaults</code> 路径下(~/Library/Preferences/com.kitnet.magicdisk.plist),仅本应用可读。</p>
+
+  <h2>应用绝不触碰的数据</h2>
+  <ul>
+    <li>位置、健康记录、通讯录、照片、麦克风、摄像头、屏幕录制</li>
+    <li>浏览器历史、键盘记录、剪贴板</li>
+    <li>广告标识符;不跨应用/跨网站追踪</li>
+    <li>本应用<strong>不包含</strong>任何第三方分析、广告、崩溃收集、远程配置 SDK</li>
+  </ul>
+
+  <h2>权限说明</h2>
+  <ul>
+    <li><strong>用户选择的文件读写(User-selected read-write):</strong>沙盒标准权限。你点「Scan Folder…」选目录后,系统只授权给你<strong>那个目录</strong>(及其子目录),其它地方仍然不可读。</li>
+    <li><strong>无网络 entitlement:</strong>Info.plist 与 entitlements 中均不含 <code>com.apple.security.network.client</code>,应用代码层、网络层双层禁网。</li>
+    <li><strong>无自动化/辅助功能权限:</strong>不申请 Accessibility / Automation 权限,无法操控其它应用。</li>
+  </ul>
+
+  <h2>数据删除</h2>
+  <p>应用无服务器侧数据,无需申请服务器删除。卸载应用(<code>rm -rf /Applications/KinetMagicDisk.app</code> 或拖入废纸篓)即彻底清除所有相关数据(包括书签)。</p>
+
+  <h2>儿童</h2>
+  <p>本应用不含面向儿童的内容,也没有公开的用户生成内容。年龄分级 4+。</p>
+
+  <h2>联系方式</h2>
+  <p>对本政策有任何问题,请联系:<strong>phinn@outlook.com</strong></p>
+  <p style="margin-top:3em"><a href="index.html">« 返回 KinetMagicDisk 介绍页</a></p>
+  </section>
+
+  <!-- ===================== 繁體中文 ===================== -->
+  <section lang="zh-Hant" data-lang="zh-Hant">
+  <h1>KinetMagicDisk 隱私政策</h1>
+  <p class="sub">最後更新:2026-09-11 · 適用於 macOS 應用「KinetMagicDisk」</p>
+
+  <h2>一句話版本</h2>
+  <p><strong>我們不收集你的任何資料。</strong>沒有帳號、沒有廣告、沒有統計分析、沒有第三方 SDK。應用不會把你的檔案傳送至任何伺服器——事實上它根本沒有網路能力。</p>
+
+  <h2>應用能做什麼</h2>
+  <ul>
+    <li><strong>掃描你選擇的資料夾:</strong>列舉目錄結構並按體積聚合,在螢幕上畫成旭日圖,列出大檔案。</li>
+    <li><strong>把檔案移至垃圾桶:</strong>透過系統標準 API <code>FileManager.trashItem</code>,檔案進垃圾桶可復原,絕不永久刪除。</li>
+    <li><strong>記住你的選擇:</strong>使用 <strong>app-scoped 安全範圍書籤</strong>,以便下次「Scan Home」無需再次授權。書籤只對本應用有效,無法被其它行程讀取。</li>
+  </ul>
+
+  <h2>資料存在哪裡</h2>
+  <p><strong>全部在你自己的 Mac 上。</strong>掃描結果只是渲染到視窗的畫面,不寫盤、不入資料庫、不上傳雲端。書籤以二進位形式儲存於 macOS 標準 <code>UserDefaults</code> 路徑下(~/Library/Preferences/com.kitnet.magicdisk.plist),僅本應用可讀。</p>
+
+  <h2>應用絕不觸碰的資料</h2>
+  <ul>
+    <li>位置、健康記錄、通訊錄、相片、麥克風、攝影機、螢幕錄製</li>
+    <li>瀏覽器歷史、鍵盤記錄、剪貼簿</li>
+    <li>廣告識別碼;不跨應用/跨網站追蹤</li>
+    <li>本應用<strong>不包含</strong>任何第三方分析、廣告、當機收集、遠端設定 SDK</li>
+  </ul>
+
+  <h2>權限說明</h2>
+  <ul>
+    <li><strong>使用者選擇的檔案讀寫:</strong>沙盒標準權限。你點「Scan Folder…」選目錄後,系統只授權給你<strong>那個目錄</strong>(及其子目錄),其它地方仍然不可讀。</li>
+    <li><strong>無網路 entitlement:</strong>Info.plist 與 entitlements 中均不含 <code>com.apple.security.network.client</code>,應用代碼層、網路層雙層禁網。</li>
+    <li><strong>無自動化/輔助功能權限:</strong>不申請 Accessibility / Automation 權限,無法操控其它應用。</li>
+  </ul>
+
+  <h2>資料刪除</h2>
+  <p>應用無伺服器端資料,無需申請伺服器刪除。解除安裝應用(<code>rm -rf /Applications/KinetMagicDisk.app</code> 或拖入垃圾桶)即徹底清除所有相關資料(包括書籤)。</p>
+
+  <h2>兒童</h2>
+  <p>本應用不含面向兒童的內容,也沒有公開的使用者產生內容。年齡分級 4+。</p>
+
+  <h2>聯絡方式</h2>
+  <p>對本政策有任何問題,請聯絡:<strong>phinn@outlook.com</strong></p>
+  <p style="margin-top:3em"><a href="index.html">« 返回 KinetMagicDisk 介紹頁</a></p>
+  </section>
+
+  <!-- ===================== English ===================== -->
+  <section lang="en" data-lang="en">
+  <h1>KinetMagicDisk Privacy Policy</h1>
+  <p class="sub">Last updated: 2026-09-11 · Applies to the macOS app "KinetMagicDisk"</p>
+
+  <h2>The short version</h2>
+  <p><strong>We don't collect any of your data.</strong> No accounts, no ads, no analytics, no third-party SDKs. The app never sends your files to any server — in fact, it has no network capability at all.</p>
+
+  <h2>What the app does</h2>
+  <ul>
+    <li><strong>Scans the folder you pick:</strong> enumerates the directory tree and aggregates by size, rendering a sunburst chart and a list on screen.</li>
+    <li><strong>Moves files to the Trash:</strong> via the standard <code>FileManager.trashItem</code> API. Files go to the Trash where they can be restored; nothing is permanently deleted.</li>
+    <li><strong>Remembers your choice:</strong> uses an <strong>app-scoped security-scoped bookmark</strong> so "Scan Home" doesn't need re-authorization on the next launch. The bookmark is only readable by this app.</li>
+  </ul>
+
+  <h2>Where your data lives</h2>
+  <p><strong>Entirely on your own Mac.</strong> Scan results are just pixels drawn on screen — not written to disk, not stored in a database, not synced to a cloud. The bookmark is stored as a binary blob in the standard macOS <code>UserDefaults</code> location (~/Library/Preferences/com.kitnet.magicdisk.plist), readable only by this app.</p>
+
+  <h2>Data we never touch</h2>
+  <ul>
+    <li>Location, health, contacts, photos, microphone, camera, screen recording</li>
+    <li>Browser history, keystrokes, clipboard</li>
+    <li>Advertising identifiers; no cross-app or cross-site tracking</li>
+    <li>The app contains <strong>no</strong> third-party analytics, ad, crash-collection, or remote-config SDK</li>
+  </ul>
+
+  <h2>Permissions</h2>
+  <ul>
+    <li><strong>User-selected file read-write:</strong> the standard sandbox permission. When you click "Scan Folder…" and pick a directory, the system grants you access to <strong>that directory only</strong> (and its subdirectories) — nothing else is readable.</li>
+    <li><strong>No network entitlement:</strong> neither Info.plist nor entitlements include <code>com.apple.security.network.client</code>; the app is network-disabled at both the code and entitlement layers.</li>
+    <li><strong>No automation / accessibility entitlements:</strong> the app does not request Accessibility or Automation rights and cannot drive other applications.</li>
+  </ul>
+
+  <h2>Data deletion</h2>
+  <p>The app stores nothing on a server, so there's nothing to delete remotely. Uninstalling the app (drag to Trash or <code>rm -rf /Applications/KinetMagicDisk.app</code>) permanently removes all app-related data, including the bookmark.</p>
+
+  <h2>Children</h2>
+  <p>The app contains no content directed at children and no public user-generated content. Age rating 4+.</p>
+
+  <h2>Contact</h2>
+  <p>Questions about this policy: <strong>phinn@outlook.com</strong></p>
+  <p style="margin-top:3em"><a href="index.html">« Back to the KinetMagicDisk page</a></p>
+  </section>
+
+  <!-- ===================== 日本語 ===================== -->
+  <section lang="ja" data-lang="ja">
+  <h1>KinetMagicDisk プライバシーポリシー</h1>
+  <p class="sub">最終更新:2026-09-11 · macOS アプリ「KinetMagicDisk」に適用</p>
+
+  <h2>ひとことで</h2>
+  <p><strong>当社はユーザーのデータを一切収集しません。</strong>アカウント無し、広告無し、解析無し、サードパーティ SDK 無し。アプリがファイルをサーバーに送信することは一切ありません——そもそもネットワーク機能を一切持ちません。</p>
+
+  <h2>アプリの機能</h2>
+  <ul>
+    <li><strong>選択したフォルダをスキャン:</strong>ディレクトリ構造を列挙してサイズで集約、画面に旭日図とリストを描画します。</li>
+    <li><strong>ファイルをゴミ箱へ移動:</strong>システム標準 API <code>FileManager.trashItem</code> 経由。ゴミ箱から復元可能、永久削除は絶対にしません。</li>
+    <li><strong>選択を記憶:</strong><strong>app-scoped セキュリティスコープドブックマーク</strong>を使用し、次回「Scan Home」で再認証が不要になります。ブックマークはこのアプリからのみ読み取り可能。</li>
+  </ul>
+
+  <h2>データの保存場所</h2>
+  <p><strong>すべてあなたの Mac 内に保存されます。</strong>スキャン結果は画面に描画されるピクセルであり、ディスク書き込みもデータベース保存もクラウド同期も一切行いません。ブックマークは macOS 標準 <code>UserDefaults</code>(~/Library/Preferences/com.kitnet.magicdisk.plist)にバイナリ保存され、本アプリのみが読み取り可能です。</p>
+
+  <h2>アプリが絶対に扱わないデータ</h2>
+  <ul>
+    <li>位置情報、健康記録、連絡先、写真、マイク、カメラ、画面収録</li>
+    <li>閲覧履歴、キーボード入力履歴、クリップボード</li>
+    <li>広告識別子。アプリ間/サイト間のトラッキングは一切行いません</li>
+    <li>本アプリには<strong>サードパーティの解析・広告・クラッシュ収集・遠隔設定 SDK は一切含まれていません</strong></li>
+  </ul>
+
+  <h2>権限について</h2>
+  <ul>
+    <li><strong>ユーザー選択のファイル読み書き:</strong>サンドボックス標準権限。「Scan Folder…」でディレクトリを選択すると、システムはそのディレクトリ(とそのサブディレクトリ)<strong>のみ</strong>へのアクセス権を付与します。</li>
+    <li><strong>ネットワーク entitlement 無し:</strong>Info.plist にも entitlements にも <code>com.apple.security.network.client</code> を含まず、コード層・entitlement 層の二重でネットワークを遮断。</li>
+    <li><strong>自動化/アクセシビリティ権限無し:</strong>Accessibility や Automation 権限を申請せず、他のアプリケーションを操作することはできません。</li>
+  </ul>
+
+  <h2>データの削除</h2>
+  <p>アプリ側にサーバーデータは存在しないため、遠隔削除の申請は不要です。アプリをアンインストール(ゴミ箱へドラッグ、または <code>rm -rf /Applications/KinetMagicDisk.app</code>)することで、ブックマークを含むすべての関連データが完全に削除されます。</p>
+
+  <h2>お子様について</h2>
+  <p>本アプリにはお子様向けコンテンツや公開されたユーザー生成コンテンツは含まれません。年齢レーティングは 4+。</p>
+
+  <h2>お問い合わせ</h2>
+  <p>本ポリシーに関するご質問:<strong>phinn@outlook.com</strong></p>
+  <p style="margin-top:3em"><a href="index.html">« KinetMagicDisk 紹介ページへ戻る</a></p>
+  </section>
+
+</div>
+
+<script>
+(function () {
+  var langs = ['zh-Hans', 'zh-Hant', 'en', 'ja'];
+  var buttons = document.querySelectorAll('.langbar button');
+  var sections = document.querySelectorAll('section[data-lang]');
+
+  function show(lang) {
+    if (langs.indexOf(lang) < 0) return;
+    sections.forEach(function (s) { s.hidden = (s.dataset.lang !== lang); });
+    buttons.forEach(function (b) { b.classList.toggle('on', b.dataset.lang === lang); });
+    document.documentElement.lang = lang;
+    try { localStorage.setItem('kinetmagicdisk_priv_lang', lang); } catch (e) {}
+    if (location.hash !== '#' + lang) history.replaceState(null, '', '#' + lang);
+  }
+
+  buttons.forEach(function (b) {
+    b.addEventListener('click', function () { show(b.dataset.lang); });
+  });
+
+  var initial = null;
+  var hash = location.hash.replace('#', '');
+  if (langs.indexOf(hash) >= 0) initial = hash;
+  if (!initial) {
+    try { var saved = localStorage.getItem('kinetmagicdisk_priv_lang'); if (langs.indexOf(saved) >= 0) initial = saved; } catch (e) {}
+  }
+  if (!initial) initial = 'en';
+  show(initial);
+})();
+</script>
+</body>
+</html>
