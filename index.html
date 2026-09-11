@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KinetMagicDisk — Visual Disk Space Analyzer</title>
+<meta name="description" content="KinetMagicDisk: see what's eating your disk. Interactive sunburst chart of any folder, drill into directories, trash the bloat. No accounts, no uploads — your files stay on your Mac.">
+<meta property="og:title" content="KinetMagicDisk — Visual Disk Space Analyzer">
+<meta property="og:description" content="See what's eating your disk. Drill in, trash the bloat, all on-device.">
+<style>
+:root{
+  --bg:#0D0F14; --surface:#151923; --surface2:#1D2330; --line:#2A3242;
+  --text:#EEF1F5; --muted:#939CA9; --dim:#5C6673;
+  --dawn:#FF9F45; --gold:#FFD75F;
+  --grad:linear-gradient(135deg,#FF9F45 0%,#FFD75F 100%);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","PingFang SC","Hiragino Sans","Yu Gothic",Inter,system-ui,sans-serif;line-height:1.7;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+section{padding:72px 0;border-bottom:1px solid var(--line)}
+
+nav{position:sticky;top:0;z-index:50;background:rgba(13,15,20,.82);backdrop-filter:blur(20px);border-bottom:1px solid var(--line)}
+.nav{display:flex;align-items:center;justify-content:space-between;height:60px;gap:12px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:600;font-size:15px}
+.brand .mark{width:30px;height:30px;border-radius:8px;background:var(--grad);display:flex;align-items:center;justify-content:center;color:#0D0F14;font-weight:800;font-size:15px}
+.navlinks{display:flex;gap:22px;font-size:13.5px;color:var(--muted)}
+.navlinks a:hover{color:var(--text)}
+.langs{display:flex;gap:6px}
+.langs button{background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:8px;padding:4px 10px;font-size:12px;cursor:pointer;font-family:inherit}
+.langs button.on{background:var(--grad);color:#0D0F14;border-color:transparent;font-weight:600}
+
+/* hero */
+.hero{padding:80px 0 90px}
+.hero .wrap{display:grid;grid-template-columns:1.15fr .85fr;gap:56px;align-items:center}
+.pill{display:inline-flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-size:13px;color:var(--muted);margin-bottom:22px}
+.pill .dot{width:7px;height:7px;border-radius:50%;background:var(--dawn)}
+h1{font-size:44px;line-height:1.18;letter-spacing:-.5px;font-weight:700}
+h1 .grad{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{margin-top:18px;font-size:17px;color:var(--muted);max-width:34em}
+.cta{margin-top:30px;display:flex;gap:14px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:9px;padding:13px 24px;border-radius:13px;font-size:15px;font-weight:600}
+.btn.primary{background:var(--grad);color:#0D0F14}
+.btn.ghost{border:1px solid var(--line);color:var(--text)}
+.btn.ghost:hover{border-color:var(--dawn)}
+.btn svg{width:17px;height:17px}
+.trust{margin-top:26px;display:flex;gap:18px;flex-wrap:wrap;font-size:13px;color:var(--dim)}
+.trust span{display:inline-flex;align-items:center;gap:6px}
+
+/* window mock */
+.win{width:340px;margin:0 auto;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:0;box-shadow:0 30px 80px rgba(255,159,69,.09),0 8px 30px rgba(0,0,0,.5);overflow:hidden}
+.winbar{display:flex;align-items:center;gap:6px;padding:9px 12px;background:var(--surface2);border-bottom:1px solid var(--line)}
+.winbar i{width:11px;height:11px;border-radius:50%;background:#3A4254}
+.winbar i:nth-child(1){background:#FF5F57}
+.winbar i:nth-child(2){background:#FEBC2E}
+.winbar i:nth-child(3){background:#28C840}
+.winbody{display:grid;grid-template-columns:130px 1fr;gap:0;height:230px}
+.burst{background:#0D0F14;display:flex;align-items:center;justify-content:center;position:relative;border-right:1px solid var(--line)}
+.burst svg{width:118px;height:118px}
+.burst::after{content:"";position:absolute;inset:auto 8px 8px 8px;height:1px;background:var(--line)}
+.list{background:var(--bg);padding:8px 0;font-size:10.5px;color:var(--muted)}
+.list .row{display:flex;justify-content:space-between;padding:3px 12px}
+.list .row:hover{background:var(--surface)}
+.list .row b{color:var(--text);font-weight:500}
+.list .row em{font-style:normal;color:var(--dawn)}
+
+/* section heads */
+.sechead{text-align:center;margin-bottom:42px}
+.kicker{color:var(--dawn);font-size:13px;letter-spacing:1.2px;text-transform:uppercase;font-weight:600}
+h2{font-size:30px;font-weight:700;margin-top:6px;letter-spacing:-.3px}
+.secsub{margin-top:12px;color:var(--muted);font-size:15px;max-width:36em;margin-left:auto;margin-right:auto}
+
+/* modes */
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.mode{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:30px}
+.mode .tag{display:inline-block;background:var(--surface2);color:var(--gold);border:1px solid var(--line);border-radius:999px;padding:3px 12px;font-size:11px;letter-spacing:1px;font-weight:600;margin-bottom:14px}
+.mode h3{font-size:20px;margin-bottom:6px}
+.mode .who{color:var(--muted);font-size:13.5px;margin-bottom:18px}
+.mode ul{list-style:none}
+.mode li{display:flex;align-items:flex-start;gap:12px;padding:8px 0;font-size:14px;color:var(--muted)}
+.mode li .ic{width:28px;height:28px;border-radius:8px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.mode li b{color:var(--text);font-weight:500}
+
+/* features */
+.feat{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.fcard{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:26px}
+.fcard .ic{width:44px;height:44px;border-radius:13px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:16px}
+.fcard h3{font-size:16.5px;margin-bottom:8px}
+.fcard p{font-size:13.5px;color:var(--muted)}
+
+/* privacy strip */
+.priv{background:linear-gradient(180deg,var(--surface) 0%,var(--bg) 100%);border:1px solid var(--line);border-radius:24px;padding:44px;text-align:center}
+.priv .shield{font-size:40px}
+.priv h2{margin-top:10px}
+.priv p{color:var(--muted);max-width:38em;margin:14px auto 0;font-size:15px}
+.priv .chips{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:24px}
+.chip{border:1px solid var(--line);border-radius:999px;padding:7px 16px;font-size:13px;color:var(--muted)}
+.chip b{color:var(--gold);font-weight:600}
+
+footer{padding:36px 0;color:var(--dim);font-size:13px}
+.foot{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+.foot a{color:var(--muted)}.foot a:hover{color:var(--dawn)}
+
+@media (max-width:860px){
+  .hero .wrap{grid-template-columns:1fr;gap:44px}
+  h1{font-size:34px}
+  .modes{grid-template-columns:1fr}
+  .feat{grid-template-columns:1fr 1fr}
+  .navlinks{display:none}
+}
+@media (max-width:560px){.feat{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap nav">
+    <div class="brand"><div class="mark"><img src="icon.png" alt="" style="width:100%;height:100%;border-radius:8px;display:block"></div><span data-i18n="brand">KinetMagicDisk</span></div>
+    <div class="navlinks">
+      <a href="#modes" data-i18n="navModes">两种模式</a>
+      <a href="#features" data-i18n="navFeat">功能</a>
+      <a href="#privacy" data-i18n="navPriv">隐私</a>
+    </div>
+    <div class="langs">
+      <button data-lang="zh-Hans">简体</button>
+      <button data-lang="zh-Hant">繁體</button>
+      <button data-lang="en">EN</button>
+      <button data-lang="ja">日本語</button>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div>
+      <div class="pill"><span class="dot"></span><span data-i18n="pill">macOS 13+ · App Store · $9.99 一次买断</span></div>
+      <h1 data-i18n="h1">看清 Mac 里的<span class="grad">每一寸空间</span></h1>
+      <p class="sub" data-i18n="sub">KinetMagicDisk 把任意文件夹画成可下钻的旭日图——大文件立刻浮出水面,一层层点进去就能看清谁在占地盘,直接移入废纸篓。完全在本地运行。</p>
+      <div class="cta">
+        <a class="btn primary" href="#download"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg><span data-i18n="dlApp">App Store 下载</span></a>
+        <a class="btn ghost" href="#privacy" data-i18n="dlPriv">隐私政策 →</a>
+      </div>
+      <div class="trust">
+        <span data-i18n="t1">✓ 完全沙盒</span><span data-i18n="t2">✓ 无网络</span><span data-i18n="t3">✓ 无账号</span><span data-i18n="t4">✓ 文件不离开 Mac</span>
+      </div>
+    </div>
+    <div class="win" id="download">
+      <div class="winbar"><i></i><i></i><i></i></div>
+      <div class="winbody">
+        <div class="burst">
+          <svg viewBox="-50 -50 100 100">
+            <circle r="46" fill="#1D2330"/>
+            <path d="M0,-46 A46,46 0 0,1 42.4,17.9 L0,0 Z" fill="#FF9F45"/>
+            <path d="M42.4,17.9 A46,46 0 0,1 14.7,43.6 L0,0 Z" fill="#FFD75F"/>
+            <path d="M14.7,43.6 A46,46 0 0,1 -38.6,25.1 L0,0 Z" fill="#5BA8E5"/>
+            <path d="M-38.6,25.1 A46,46 0 0,1 -46,0 L0,0 Z" fill="#7CC4A0"/>
+            <path d="M-46,0 A46,46 0 0,1 -28.9,-36.4 L0,0 Z" fill="#E084C8"/>
+            <path d="M-28.9,-36.4 A46,46 0 0,1 0,-46 L0,0 Z" fill="#F5C24E"/>
+            <circle r="14" fill="#0D0F14"/>
+            <circle r="11" fill="#151923"/>
+          </svg>
+        </div>
+        <div class="list">
+          <div class="row"><b>Documents</b><em>184 GB</em></div>
+          <div class="row"><b>Library</b><em>92 GB</em></div>
+          <div class="row"><b>Downloads</b><em>38 GB</em></div>
+          <div class="row"><b>Movies</b><em>27 GB</em></div>
+          <div class="row"><b>Photos</b><em>21 GB</em></div>
+          <div class="row"><b>Music</b><em>14 GB</em></div>
+          <div class="row"><b>Desktop</b><em>9.6 GB</em></div>
+          <div class="row"><b>Applications</b><em>5.2 GB</em></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section id="modes">
+  <div class="wrap">
+    <div class="sechead">
+      <div class="kicker" data-i18n="modesKick">两种模式</div>
+      <h2 data-i18n="modesTitle">扫哪里,你说了算</h2>
+      <p class="secsub" data-i18n="modesSub">没有"自动扫整盘"的蛮力,也没有"必须给全部权限"的捆绑——你只授权给真正想看清的目录。</p>
+    </div>
+    <div class="modes">
+      <div class="mode">
+        <span class="tag" data-i18n="homeTag">HOME 模式</span>
+        <h3 data-i18n="homeTitle">一眼看清自己的家</h3>
+        <div class="who" data-i18n="homeWho">系统面板授权一次,以后「Scan Home」直接开扫</div>
+        <ul>
+          <li><span class="ic">🏠</span><span><b data-i18n="home1t">扫描个人目录</b><br><span data-i18n="home1d">覆盖 Documents / Library / Downloads / Desktop 等</span></span></li>
+          <li><span class="ic">🔖</span><span><b data-i18n="home2t">书签持久化</b><br><span data-i18n="home2d">app-scope 书签,重启后无需再次授权</span></span></li>
+          <li><span class="ic">⏱</span><span><b data-i18n="home3t">1.6TB / 330 万项</b><br><span data-i18n="home3d">实测约 55 秒扫完,带进度与卡盘看门狗</span></span></li>
+          <li><span class="ic">🛡</span><span><b data-i18n="home4t">TCC 自动跳过</b><br><span data-i18n="home4d">遇到未授权子目录安静跳过,不报错不打断</span></span></li>
+        </ul>
+      </div>
+      <div class="mode">
+        <span class="tag" data-i18n="folderTag">任意文件夹</span>
+        <h3 data-i18n="folderTitle">想看哪里点哪里</h3>
+        <div class="who" data-i18n="folderWho">「Scan Folder…」打开系统面板,选啥扫啥</div>
+        <ul>
+          <li><span class="ic">📁</span><span><b data-i18n="folder1t">任意目录</b><br><span data-i18n="folder1d">外接盘、Time Machine、归档目录,统统能扫</span></span></li>
+          <li><span class="ic">🎯</span><span><b data-i18n="folder2t">精准定位</b><br><span data-i18n="folder2d">不被无关的 /System /Library 噪声淹没</span></span></li>
+          <li><span class="ic">🗑</span><span><b data-i18n="folder3t">就地清理</b><br><span data-i18n="folder3d">hover 列表行点垃圾桶图标,文件进废纸篓可恢复</span></span></li>
+          <li><span class="ic">🚫</span><span><b data-i18n="folder4t">永不静默删</b><br><span data-i18n="folder4d">只走系统 trashItem,绝不永久删除</span></span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="features">
+  <div class="wrap">
+    <div class="sechead">
+      <div class="kicker" data-i18n="featKick">功能</div>
+      <h2 data-i18n="featTitle">把磁盘画给你看</h2>
+    </div>
+    <div class="feat">
+      <div class="fcard"><div class="ic">🌞</div><h3 data-i18n="f1t">旭日图可视化</h3><p data-i18n="f1d">按体积占比切角,大文件一眼浮出。点弧形区块下钻,目录结构跃然屏上。</p></div>
+      <div class="fcard"><div class="ic">🎯</div><h3 data-i18n="f2t">命中测试 + 高亮</h3><p data-i18n="f2d">hover 高亮、点击选中、面包屑跳层,精准到每一项的体积、占比、文件数。</p></div>
+      <div class="fcard"><div class="ic">🗑</div><h3 data-i18n="f3t">移到废纸篓</h3><p data-i18n="f3d">hover 列表行显形的垃圾桶按钮,调系统 trashItem,可从废纸篓一键恢复。</p></div>
+      <div class="fcard"><div class="ic">⚡</div><h3 data-i18n="f4t">并发扫描引擎</h3><p data-i18n="f4d">Swift actor + GCD 闸控,慢目录卡盘看门狗,百万级文件也不掉链子。</p></div>
+      <div class="fcard"><div class="ic">🔗</div><h3 data-i18n="f5t">软链与边界</h3><p data-i18n="f5d">自动检测符号链接避免环路,TCC 受保护目录静默跳过,不报错。</p></div>
+      <div class="fcard"><div class="ic">🌍</div><h3 data-i18n="f6t">四语即切</h3><p data-i18n="f6d">English / 简体中文 / 繁體中文 / 日本語。应用内即时切换,不用重启。</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="privacy">
+  <div class="wrap">
+    <div class="priv">
+      <div class="shield">🛡️</div>
+      <h2 data-i18n="prTitle">你的文件,从未上传</h2>
+      <p data-i18n="prSub">完全沙盒运行,无网络、无自动化权限、无后台进程。你选什么目录就扫什么目录,扫描结果只显示在你屏幕上,文件不会被复制、不会离开你的 Mac。</p>
+      <div class="chips">
+        <span class="chip"><b>0</b> <span data-i18n="chip1">账号</span></span>
+        <span class="chip"><b>0</b> <span data-i18n="chip2">网络</span></span>
+        <span class="chip"><b>0</b> <span data-i18n="chip3">第三方 SDK</span></span>
+        <span class="chip"><b>0</b> <span data-i18n="chip4">分析追踪</span></span>
+      </div>
+      <p style="margin-top:26px"><a class="btn ghost" href="privacy.html" data-i18n="prLink">阅读完整隐私政策 →</a></p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot">
+    <div>© 2026 KinetMagicDisk · <img src="icon.png" alt="" style="width:20px;height:20px;border-radius:5px;vertical-align:-4px"> <span data-i18n="ftMade">为不想再被磁盘塞满的人而做</span></div>
+    <div><a href="privacy.html" data-i18n="ftPriv">隐私政策</a></div>
+  </div>
+</footer>
+
+<script>
+const I18N = {
+"zh-Hans":{
+  title:"KinetMagicDisk — 磁盘空间可视化 · 旭日图一眼看清",
+  brand:"KinetMagicDisk", navModes:"两种模式", navFeat:"功能", navPriv:"隐私",
+  pill:"macOS 13+ · App Store · $9.99 一次买断",
+  h1:"看清 Mac 里的<span class=\"grad\">每一寸空间</span>",
+  sub:"KinetMagicDisk 把任意文件夹画成可下钻的旭日图——大文件立刻浮出水面,一层层点进去就能看清谁在占地盘,直接移入废纸篓。完全在本地运行。",
+  dlApp:"App Store 下载", dlPriv:"隐私政策 →",
+  t1:"✓ 完全沙盒", t2:"✓ 无网络", t3:"✓ 无账号", t4:"✓ 文件不离开 Mac",
+  modesKick:"两种模式", modesTitle:"扫哪里,你说了算",
+  modesSub:"没有「自动扫整盘」的蛮力,也没有「必须给全部权限」的捆绑——你只授权给真正想看清的目录。",
+  homeTag:"HOME 模式", homeTitle:"一眼看清自己的家",
+  homeWho:"系统面板授权一次,以后「Scan Home」直接开扫",
+  home1t:"扫描个人目录", home1d:"覆盖 Documents / Library / Downloads / Desktop 等",
+  home2t:"书签持久化", home2d:"app-scope 书签,重启后无需再次授权",
+  home3t:"1.6TB / 330 万项", home3d:"实测约 55 秒扫完,带进度与卡盘看门狗",
+  home4t:"TCC 自动跳过", home4d:"遇到未授权子目录安静跳过,不报错不打断",
+  folderTag:"任意文件夹", folderTitle:"想看哪里点哪里",
+  folderWho:"「Scan Folder…」打开系统面板,选啥扫啥",
+  folder1t:"任意目录", folder1d:"外接盘、Time Machine、归档目录,统统能扫",
+  folder2t:"精准定位", folder2d:"不被无关的 /System /Library 噪声淹没",
+  folder3t:"就地清理", folder3d:"hover 列表行点垃圾桶图标,文件进废纸篓可恢复",
+  folder4t:"永不静默删", folder4d:"只走系统 trashItem,绝不永久删除",
+  featKick:"功能", featTitle:"把磁盘画给你看",
+  f1t:"旭日图可视化", f1d:"按体积占比切角,大文件一眼浮出。点弧形区块下钻,目录结构跃然屏上。",
+  f2t:"命中测试 + 高亮", f2d:"hover 高亮、点击选中、面包屑跳层,精准到每一项的体积、占比、文件数。",
+  f3t:"移到废纸篓", f3d:"hover 列表行显形的垃圾桶按钮,调系统 trashItem,可从废纸篓一键恢复。",
+  f4t:"并发扫描引擎", f4d:"Swift actor + GCD 闸控,慢目录卡盘看门狗,百万级文件也不掉链子。",
+  f5t:"软链与边界", f5d:"自动检测符号链接避免环路,TCC 受保护目录静默跳过,不报错。",
+  f6t:"四语即切", f6d:"English / 简体中文 / 繁體中文 / 日本語。应用内即时切换,不用重启。",
+  prTitle:"你的文件,从未上传",
+  prSub:"完全沙盒运行,无网络、无自动化权限、无后台进程。你选什么目录就扫什么目录,扫描结果只显示在你屏幕上,文件不会被复制、不会离开你的 Mac。",
+  chip1:"账号", chip2:"网络", chip3:"第三方 SDK", chip4:"分析追踪",
+  prLink:"阅读完整隐私政策 →",
+  ftMade:"为不想再被磁盘塞满的人而做", ftPriv:"隐私政策"
+},
+"zh-Hant":{
+  title:"KinetMagicDisk — 磁碟空間視覺化 · 旭日圖一眼看清",
+  brand:"KinetMagicDisk", navModes:"兩種模式", navFeat:"功能", navPriv:"隱私",
+  pill:"macOS 13+ · App Store · $9.99 一次買斷",
+  h1:"看清 Mac 裡的<span class=\"grad\">每一寸空間</span>",
+  sub:"KinetMagicDisk 把任意資料夾畫成可下鑽的旭日圖——大檔案立刻浮出水面,一層層點進去就能看清誰在占地盤,直接移至垃圾桶。完全在本機執行。",
+  dlApp:"App Store 下載", dlPriv:"隱私政策 →",
+  t1:"✓ 完全沙盒", t2:"✓ 無網路", t3:"✓ 無帳號", t4:"✓ 檔案不離開 Mac",
+  modesKick:"兩種模式", modesTitle:"掃哪裡,你說了算",
+  modesSub:"沒有「自動掃整盤」的蠻力,也沒有「必須給全部權限」的捆綁——你只授權給真正想看清的目錄。",
+  homeTag:"HOME 模式", homeTitle:"一眼看清自己的家",
+  homeWho:"系統面板授權一次,以後「Scan Home」直接開掃",
+  home1t:"掃描個人目錄", home1d:"涵蓋 Documents / Library / Downloads / Desktop 等",
+  home2t:"書籤持久化", home2d:"app-scope 書籤,重啟後無需再次授權",
+  home3t:"1.6TB / 330 萬項", home3d:"實測約 55 秒掃完,帶進度與卡盤看門狗",
+  home4t:"TCC 自動跳過", home4d:"遇到未授權子目錄安靜跳過,不報錯不中斷",
+  folderTag:"任意資料夾", folderTitle:"想看哪裡點哪裡",
+  folderWho:"「Scan Folder…」打開系統面板,選啥掃啥",
+  folder1t:"任意目錄", folder1d:"外接磁碟、Time Machine、封存目錄,統統能掃",
+  folder2t:"精準定位", folder2d:"不被無關的 /System /Library 雜訊淹沒",
+  folder3t:"就地清理", folder3d:"hover 列表行點垃圾桶圖示,檔案進垃圾桶可復原",
+  folder4t:"永不靜默刪", folder4d:"只走系統 trashItem,絕不永久刪除",
+  featKick:"功能", featTitle:"把磁碟畫給你看",
+  f1t:"旭日圖視覺化", f1d:"按體積佔比切角,大檔案一眼浮出。點弧形區塊下鑽,目錄結構躍然屏上。",
+  f2t:"命中測試 + 高亮", f2d:"hover 高亮、點擊選中、麵包屑跳層,精準到每一項的體積、佔比、檔案數。",
+  f3t:"移至垃圾桶", f3d:"hover 列表行顯形的垃圾桶按鈕,調系統 trashItem,可從垃圾桶一鍵復原。",
+  f4t:"並發掃描引擎", f4d:"Swift actor + GCD 閘控,慢目錄卡盤看門狗,百萬級檔案也不掉鏈子。",
+  f5t:"軟鏈與邊界", f5d:"自動偵測符號連結避免迴圈,TCC 受保護目錄靜默跳過,不報錯。",
+  f6t:"四語即切", f6d:"English / 簡體中文 / 繁體中文 / 日本語。應用內即時切換,不用重啟。",
+  prTitle:"你的檔案,從未上傳",
+  prSub:"完全沙盒執行,無網路、無自動化權限、無背景程式。你選什麼目錄就掃什麼目錄,掃描結果只顯示在你螢幕上,檔案不會被複製、不會離開你的 Mac。",
+  chip1:"帳號", chip2:"網路", chip3:"第三方 SDK", chip4:"分析追蹤",
+  prLink:"閱讀完整隱私政策 →",
+  ftMade:"為不想再被磁碟塞滿的人而做", ftPriv:"隱私政策"
+},
+"en":{
+  title:"KinetMagicDisk — Visual Disk Space Analyzer",
+  brand:"KinetMagicDisk", navModes:"Modes", navFeat:"Features", navPriv:"Privacy",
+  pill:"macOS 13+ · App Store · $9.99 one-time",
+  h1:"See every byte your Mac <span class=\"grad\">is hiding</span>",
+  sub:"KinetMagicDisk turns any folder into a drillable sunburst chart. The big files surface instantly, you click in to see who's eating the space, and trash the bloat in place. Runs 100% on your Mac.",
+  dlApp:"Download on App Store", dlPriv:"Privacy policy →",
+  t1:"✓ Fully sandboxed", t2:"✓ No network", t3:"✓ No accounts", t4:"✓ Files stay on your Mac",
+  modesKick:"Two modes", modesTitle:"You pick what to scan",
+  modesSub:"No brute-force \"scan everything\"; no \"grant full access\" pressure. You only authorize the folders you actually want to see.",
+  homeTag:"HOME MODE", homeTitle:"See your home, instantly",
+  homeWho:"Authorize once via the system panel — \"Scan Home\" works straight after",
+  home1t:"Scan your home folder", home1d:"Covers Documents, Library, Downloads, Desktop…",
+  home2t:"Bookmarks persist", home2d:"App-scoped security-scoped bookmarks survive restarts",
+  home3t:"1.6 TB / 3.3 M items", home3d:"~55 s on real hardware, with a stuck-watch watchdog",
+  home4t:"TCC directories auto-skipped", home4d:"Unauthorized subdirs are skipped silently, no errors",
+  folderTag:"ANY FOLDER", folderTitle:"Click, pick, scan",
+  folderWho:"\"Scan Folder…\" opens the system picker — scan anything you want",
+  folder1t:"Any directory", folder1d:"External drives, Time Machine, archives — all supported",
+  folder2t:"Precision targeting", folder2d:"No drowning in /System /Library noise",
+  folder3t:"Clean up in place", folder3d:"Hover a row, click the trash icon, item goes to Trash (recoverable)",
+  folder4t:"Never silent delete", folder4d:"Only the system trashItem API — no permanent removal",
+  featKick:"Features", featTitle:"Painted, not listed",
+  f1t:"Sunburst visualization", f1d:"Big files surface by area. Click any arc to drill in — directory structure at a glance.",
+  f2t:"Hit-test + highlight", f2d:"Hover highlight, click to select, breadcrumb jump — precise to size, ratio, file count.",
+  f3t:"Move to Trash", f3d:"Reveal-on-hover trash button on each row. Calls system trashItem — recoverable from Trash.",
+  f4t:"Concurrent scan engine", f4d:"Swift actor + GCD gate + stuck-folder watchdog. Millions of files without freezing.",
+  f5t:"Symlinks + boundaries", f5d:"Detects symlink cycles automatically; TCC-protected folders skipped silently, no errors.",
+  f6t:"Four languages", f6d:"English / 简体中文 / 繁體中文 / 日本語. Instant in-app switch, no restart.",
+  prTitle:"Your files never leave your Mac",
+  prSub:"Fully sandboxed, no network, no automation rights, no background daemons. You choose the folder; the result stays on your screen. Nothing is copied, nothing is uploaded.",
+  chip1:"Accounts", chip2:"Network", chip3:"3rd-party SDKs", chip4:"Analytics",
+  prLink:"Read the full privacy policy →",
+  ftMade:"For everyone tired of \"Storage Almost Full\"", ftPriv:"Privacy policy"
+},
+"ja":{
+  title:"KinetMagicDisk — ディスク使用量を視覚化",
+  brand:"KinetMagicDisk", navModes:"モード", navFeat:"機能", navPriv:"プライバシー",
+  pill:"macOS 13+ · App Store · $9.99 買い切り",
+  h1:"Mac の<span class=\"grad\">あらゆるバイト</span>を可視化",
+  sub:"KinetMagicDisk は任意のフォルダをドリルダウン可能な旭日図に変換します。大きいファイルが一目で浮かび、層を辿れば誰が容量を食っているか即座に判明。不要なものはそのままゴミ箱へ。すべて Mac 内で完結。",
+  dlApp:"App Store でダウンロード", dlPriv:"プライバシーポリシー →",
+  t1:"✓ 完全サンドボックス", t2:"✓ ネットワーク無し", t3:"✓ アカウント無し", t4:"✓ ファイルは Mac から出ない",
+  modesKick:"2つのモード", modesTitle:"スキャン対象はあなた次第",
+  modesSub:"「ドライブ全体を自動スキャン」のような蛮力はありません。「全権限必須」のような束縛も無し——本当に見たいフォルダだけに権限を付与してください。",
+  homeTag:"HOME モード", homeTitle:"ホームを即座に可視化",
+  homeWho:"システムパネルで一度だけ認証すれば、以降は「Scan Home」で直接スキャン開始",
+  home1t:"ホームフォルダをスキャン", home1d:"Documents / Library / Downloads / Desktop などをカバー",
+  home2t:"ブックマーク永続化", home2d:"app-scope セキュリティスコープドブックmarks。再起動後も再認証不要",
+  home3t:"1.6TB / 330万項目", home3d:"実測約55秒。スタック監視 watchdog 付きで安定動作",
+  home4t:"TCC ディレクトリ自動スキップ", home4d:"未認証サブディレクトリは静かにスキップ、エラー表示なし",
+  folderTag:"任意のフォルダ", folderTitle:"見たい場所をクリックするだけ",
+  folderWho:"「Scan Folder…」でシステムピッカーを開いて、好きなフォルダを選択",
+  folder1t:"任意のディレクトリ", folder1d:"外付けドライブ、Time Machine、アーカイブ、すべて対応",
+  folder2t:"精密ターゲティング", folder2d:"/System /Library のノイズに溺れない",
+  folder3t:"その場でクリーンアップ", folder3d:"行にカーソルを合わせると表示されるゴミ箱アイコンをクリック、ゴミ箱へ(復元可能)",
+  folder4t:"サイレント削除なし", folder4d:"必ずシステムの trashItem API 経由、永久削除は絶対にしない",
+  featKick:"機能", featTitle:"「リスト」ではなく「絵」に",
+  f1t:"旭日図ビジュアライゼーション", f1d:"面積で大きいファイルが一目で。弧をクリックで下方向にドリル、階層が画面に躍動。",
+  f2t:"ヒットテスト + ハイライト", f2d:"ホバーでハイライト、クリックで選択、パンくずジャンプ——サイズ・比率・ファイル数を正確に。",
+  f3t:"ゴミ箱へ移動", f3d:"各行のホバーで現れるゴミ箱ボタン。システムの trashItem を呼び出すので、ゴミ箱から復元可能。",
+  f4t:"並列スキャンエンジン", f4d:"Swift actor + GCD ゲート + スタックフォルダ監視。数百万ファイルでもフリーズしません。",
+  f5t:"シンボリックリンク + 境界", f5d:"シンボリックリンクの循環を自動検出、TCC 保護ディレクトリは静かにスキップ。",
+  f6t:"4言語即切替", f6d:"English / 简体中文 / 繁體中文 / 日本語。アプリ内で即座に切り替え、再起動不要。",
+  prTitle:"あなたのファイルは決して Mac の外へ出ません",
+  prSub:"完全サンドボックス動作、ネットワーク無し、自動化権限無し、バックグラウンドデーモン無し。あなたが選んだフォルダだけをスキャンし、結果はあなたの画面にだけ表示されます。コピーもアップロードも一切なし。",
+  chip1:"アカウント", chip2:"ネットワーク", chip3:"第三者SDK", chip4:"解析追跡",
+  prLink:"完全なプライバシーポリシーを読む →",
+  ftMade:"「ストレージ残りわずか」にうんざりしたすべての人へ", ftPriv:"プライバシーポリシー"
+}
+};
+const supported = Object.keys(I18N);
+function pickInitial(){
+  const hash = location.hash.replace('#','');
+  if (supported.indexOf(hash) >= 0) return hash;
+  try { const saved = localStorage.getItem("kinetmagicdisk_lang"); if (supported.indexOf(saved) >= 0) return saved; } catch(e){}
+  return "en";
+}
+const initial = pickInitial();
+apply(initial);
+document.querySelectorAll(".langs button").forEach(b=>b.addEventListener("click",()=>apply(b.dataset.lang)));
+window.addEventListener("hashchange",()=>{ const h = location.hash.replace('#',''); if (supported.indexOf(h) >= 0) apply(h); });
+function apply(l){
+  const d = I18N[l];
+  document.querySelectorAll("[data-i18n]").forEach(el=>{
+    const v = d[el.dataset.i18n];
+    if(v!==undefined) el.innerHTML = v;
+  });
+  document.title = d.title;
+  document.documentElement.lang = l;
+  localStorage.setItem("kinetmagicdisk_lang", l);
+  document.querySelectorAll(".langs button").forEach(b=>b.classList.toggle("on", b.dataset.lang===l));
+}
+</script>
+
+</body>
+</html>
